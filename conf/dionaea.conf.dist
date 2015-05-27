@@ -485,7 +485,7 @@ modules = {
 		}
 
 		services = {
-			serve = ["http", "https", "tftp", "ftp", "mirror", "smb", "epmap", "sip","mssql", "mysql"]
+			serve = ["http", "https", "tftp", "ftp", "mirror", "smb", "epmap", "sip","mssql", "mysql" , "pptp"]
 		}
 
 	}
