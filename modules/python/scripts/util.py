@@ -46,3 +46,8 @@ def hashfile(filename, digest):
     fh.close()
     return digest.hexdigest()
 
+def xor(data, key):
+    l = len(key)
+    return bytearray((
+        (data[i] ^ key[i % l]) for i in range(0,len(data))
+    ))
