@@ -591,7 +591,15 @@ static void curl_ihandler_cb(struct incident *i, void *ctx)
 			session_download_new(i, url->str);
 		} else
 			g_critical("download without url?");
-	} else
+	} 
+	
+	// we can comment out the code below to disable the binary Upload function
+	// so Dionaea won't keep attempts to resolve the domains and hang
+	// as the default destination destination were all discontinued in Year 2017
+	// - anubis.iseclab.org
+	// - onlineanalyzer.norman.com
+	// - luigi.informatik.uni-mannheim.de
+	else
 		if( strcmp(i->origin, "dionaea.upload.request") == 0 )
 	{
 		session_upload_new(i);

@@ -1258,6 +1258,48 @@ class SMB_Trans2_Request(Packet):
 #		else:
 #			return r % 2
 
+
+class SMB_Trans2_FIND_FIRST2_Response(Packet):
+	name = "SMB Trans2 FIND_FIRST2 Response"
+	smb_cmd = SMB_COM_TRANSACTION2 #0x32
+	fields_desc = [
+		ByteField("WordCount",10),
+		LEShortField("TotalParamCount",10),
+		LEShortField("TotalDataCount",196),
+		LEShortField("Reserved1",0),
+		LEShortField("ParamCount",10),
+		LEShortField("ParamOffset",56),
+		LEShortField("ParamDisplacement",0),
+		LEShortField("DataCount",196),
+		LEShortField("DataOffset",68),
+		LEShortField("DataDisplacement",0),
+		ByteField("SetupCount",0),
+		ByteField("Reserved2",0),
+		LEShortField("ByteCount",209),
+		ByteField("Pad1",0),
+		LEShortField("SearchID",0xfffd),
+		LEShortField("SearchCount",2),
+		LEShortField("EndofSearch",1),
+		LEShortField("ErrorOffset",0),
+		LEShortField("LastNameOffset",96),
+		LEShortField("Pad2",0),
+# 		really ugly but this will works
+		StrFixedLenField("Data", b"\x60\x00\x00\x00\x00\x00\x00\x00\x39\xa3\xda\x08\x01\xd6\xd2\x01", 16), 
+		StrFixedLenField("Data1", b"\xba\xb0\x6e\x0a\x01\xd6\xd2\x01\x39\xa3\xda\x08\x01\xd6\xd2\x01", 16),
+		StrFixedLenField("Data2", b"\x39\xa3\xda\x08\x01\xd6\xd2\x01\x00\x00\x00\x00\x00\x00\x00\x00", 16),
+		StrFixedLenField("Data3", b"\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x02\x00\x00\x00", 16),
+		StrFixedLenField("Data4", b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 16),
+		StrFixedLenField("Data5", b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x2e\x00", 16),
+		StrFixedLenField("Data6", b"\x64\x00\x00\x00\x00\x00\x00\x00\xc2\xaf\xca\x06\xcc\xd5\xd2\x01", 16),
+		StrFixedLenField("Data7", b"\x9d\x76\x46\x90\xcc\xd5\xd2\x01\xc2\xaf\xca\x06\xcc\xd5\xd2\x01", 16),
+		StrFixedLenField("Data8", b"\xc2\xaf\xca\x06\xcc\xd5\xd2\x01\x00\x00\x00\x00\x00\x00\x00\x00", 16),
+		StrFixedLenField("Data9", b"\x00\x00\x00\x00\x00\x00\x00\x00\x10\x00\x00\x00\x03\x00\x00\x00", 16),
+		StrFixedLenField("Data10", b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 16),
+		StrFixedLenField("Data11", b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x2e\x2e", 16),
+		StrFixedLenField("Data12", b"\x00\x00\x00\x00", 4),
+	]
+
+
 class SMB_Trans2_Response(Packet):
 	name = "SMB Trans2 Response"
 	smb_cmd = SMB_COM_TRANSACTION2 #0x32
@@ -1385,6 +1427,16 @@ class SMB_Close(Packet):
 	fields_desc = [
 		ByteField("WordCount",3),
 		XLEShortField("FID",0),
+		LEIntField("LastWriteTime", 0),
+		LEShortField("ByteCount",0),
+	]
+
+class SMB_Close_Response(Packet):
+	name = "SMB Close"
+	smb_cmd = SMB_COM_CLOSE
+	fields_desc = [
+#		ByteField("WordCount",3),
+#		XLEShortField("FID",0),
 		LEIntField("LastWriteTime", 0),
 		LEShortField("ByteCount",0),
 	]
@@ -1626,6 +1678,7 @@ bind_top_down(SMB_Header, SMB_Write_AndX_Response, Command=0x2f)
 bind_top_down(SMB_Header, SMB_Write_Response, Command=SMB_COM_WRITE)
 bind_top_down(SMB_Header, SMB_Read_AndX_Response, Command=0x2e)
 bind_top_down(SMB_Header, SMB_Trans_Request, Command=0x25)
+
 bind_top_down(SMB_Header, SMB_Trans2_Request, Command=0x32)
 bind_top_down(SMB_Header, SMB_Trans2_Secondary_Request, Command=0x33)
 bind_top_down(SMB_Header, SMB_Open_AndX_Request, Command=0x2d)
