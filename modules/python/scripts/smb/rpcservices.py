@@ -3136,6 +3136,8 @@ class SRVSVC(RPCService):
 					self.__packer.pack_pointer(self.Netname_pointer) # netname
 				for j in self.Data:
 					data = self.Data[j]
+					if not isinstance(j, str):
+						j = j.decode('utf-8')
 					self.__packer.pack_string_fix(str(j+'\0').encode('utf16')[2:])
 
 
@@ -3180,6 +3182,8 @@ class SRVSVC(RPCService):
 
 				for j in self.Data:
 					data = self.Data[j]
+					if not isinstance(j, str):
+						j = j.decode('utf-8')
 					self.__packer.pack_string_fix(str(j+'\0').encode('utf16')[2:])
 					self.__packer.pack_string_fix(str(data['comment']+'\0').encode('utf16')[2:])
 
@@ -3274,7 +3278,7 @@ class SRVSVC(RPCService):
 				self.Max_uses = 0xffffffff
 				self.Current_uses = 1
 				self.Path_pointer = 0x6789
-				self.Passwd_pointer = 0x0		
+				self.Passwd_pointer = 0x56789		
 			elif isinstance(self.__packer,ndrlib.Unpacker):
 				self.ref = self.__packer.unpack_pointer()
 				self.netname = self.__packer.unpack_pointer()
@@ -3316,7 +3320,10 @@ class SRVSVC(RPCService):
 					self.__packer.pack_string_fix(str(data['comment']+'\0').encode('utf16')[2:])
 					# Path
 					self.__packer.pack_string_fix(str(data['path']+'\0').encode('utf16')[2:])
-	
+					# Password
+					# this is necessary for Metasploit module /exploit/linux/samba/is_known_pipename
+					self.__packer.pack_string_fix(str('\0').encode('utf16')[2:])
+
 	class SERVER_INFO_101:
 		# 2.2.4.41 SERVER_INFO_101
 		# 
@@ -3442,7 +3449,12 @@ class SRVSVC(RPCService):
 		elif infostruct_share == 502:
 			s = SRVSVC.SHARE_INFO_502_CONTAINER(r)
 
-		s.Data = __shares__
+		if OS_TYPE == 5:
+			# for 'Linux Samba 4.3.11'
+			s.Data = __shares_Samba__
+		else:
+			# for all Windows
+			s.Data = __shares__ 
 		s.pack()
 
 		# total entries
@@ -3579,8 +3591,11 @@ class SRVSVC(RPCService):
 			s = SRVSVC.SHARE_INFO_2_CONTAINER(r)
 			NetName = NetName.decode('UTF-16')[:-1]
 
-			if NetName in __shares__:
-				data = __shares__[NetName]
+			if NetName.encode('ascii') in __shares__:
+				data = __shares__[NetName.encode('ascii')]
+				s.Data = {NetName:data}
+			elif NetName.encode('ascii') in __shares_Samba__:
+				data = __shares_Samba__[NetName.encode('ascii')]
 				s.Data = {NetName:data}
 			else:
 				rpclog.warn("FIXME: this code has to be written, lame workaround for now")
