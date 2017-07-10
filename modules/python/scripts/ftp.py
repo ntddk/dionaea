@@ -224,7 +224,7 @@ class ftpd(connection):
 
 	def handle_established(self):
 		self.processors()
-		self.reply(WELCOME_MSG, "Welcome to the ftp service")
+		self.reply(WELCOME_MSG, "Microsoft FTP Service")
 
 	def handle_io_in(self, data):
 #		try:
